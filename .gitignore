@@ -1,0 +1,73 @@
+# Claude Code local settings (NEVER commit)
+.claude/
+
+# Compiled binaries (keep only for releases)
+jwt-parser
+jwt-parser-static
+jwt-parser-alpine
+jwt-parser-astra
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Go vendor
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Environment variables
+.env
+.env.*
+*.env
+.env.local
+
+# Credentials & secrets
+*_key
+*_key.*
+*_secret
+*_secret.*
+credentials.json
+*.pem
+*.key
+
+# Password managers
+pass/
+.password-store/
+
+# API tokens
+.token
+*.token
+api_key.txt
+
+# Test coverage
+*.coverprofile
+
+# Build directories (if any)
+/build/
+/dist/

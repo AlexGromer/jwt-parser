@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-bash:
+    name: Bash Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq openssl base64
+
+    - name: Run Bash Unit Tests
+      run: bash tests/unit/test_bash_parser.sh
+
+    - name: Run Security Tests
+      run: bash tests/security/test_security.sh
+
+    - name: Run Compatibility Tests
+      run: bash tests/compatibility/test_compatibility.sh
+
+    - name: Run Integration Tests
+      run: bash tests/integration/test_integration.sh
+
+  test-go:
+    name: Go Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.21', '1.22', '1.23']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Download Go dependencies
+      run: go mod download
+
+    - name: Run Go tests
+      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.txt
+        flags: unittests
+        name: codecov-go-${{ matrix.go-version }}
+
+  build:
+    name: Build Binaries
+    runs-on: ubuntu-latest
+    needs: [test-bash, test-go]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Build for current platform
+      run: make build
+
+    - name: Build static binary
+      run: make build-static
+
+    - name: Build for Alpine
+      run: make build-alpine
+
+    - name: Build for Astra Linux
+      run: make build-astra
+
+    - name: List binaries
+      run: ls -lh jwt-parser*
+
+    - name: Upload binaries as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: binaries
+        path: |
+          jwt-parser-static
+          jwt-parser-alpine
+          jwt-parser-astra
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v4
+      with:
+        version: latest
+
+    - name: Run shellcheck on bash scripts
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+        find . -name "*.sh" -exec shellcheck {} +
