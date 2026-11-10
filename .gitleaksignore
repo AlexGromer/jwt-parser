@@ -1,0 +1,8 @@
+# documentation sample values and test fixtures (no real credentials): sk-1234567890..., NetBox example token 0123456789abcdef..., md5('password'), sample JWTs, variables like ${VT_API_KEY}, fake secrets for detector tests
+0077d98da63adcc8d240ba4f80377c19b020ff1b:README.md:jwt:80
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/compatibility/test_compatibility.sh:jwt:13
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/integration/test_integration.sh:generic-api-key:16
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/integration/test_integration.sh:jwt:15
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/security/test_security.sh:generic-api-key:180
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/security/test_security.sh:generic-api-key:279
+0077d98da63adcc8d240ba4f80377c19b020ff1b:tests/unit/test_bash_parser.sh:jwt:14
